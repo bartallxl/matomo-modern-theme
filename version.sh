@@ -18,10 +18,8 @@ while [[ $# -gt 0 ]]; do
             ;;
         -*)
             echo "Unknown option $1"
-            echo "Usage: $0 <new_version> [--dry-run] [-m|--message \"changelog message\"]"
-            echo "Example: $0 5.0.7"
-            echo "         $0 5.0.7 --dry-run"
-            echo "         $0 5.0.7 -m \"Fix bug with dark mode\""
+            echo "Usage: $0 <new_version> -m|--message \"changelog message\" [--dry-run]"
+            echo "Example: $0 5.0.7 -m \"Fix bug with dark mode\""
             echo "         $0 5.0.7 --message \"Add new feature\" --dry-run"
             exit 1
             ;;
@@ -30,7 +28,7 @@ while [[ $# -gt 0 ]]; do
                 NEW_VERSION="$1"
             else
                 echo "Error: Multiple version numbers provided"
-                echo "Usage: $0 <new_version> [--dry-run] [-m|--message \"changelog message\"]"
+                echo "Usage: $0 <new_version> -m|--message \"changelog message\" [--dry-run]"
                 exit 1
             fi
             shift
@@ -39,11 +37,16 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ -z "$NEW_VERSION" ]; then
-    echo "Usage: $0 <new_version> [--dry-run] [-m|--message \"changelog message\"]"
-    echo "Example: $0 5.0.7"
-    echo "         $0 5.0.7 --dry-run"
-    echo "         $0 5.0.7 -m \"Fix bug with dark mode\""
+    echo "Usage: $0 <new_version> -m|--message \"changelog message\" [--dry-run]"
+    echo "Example: $0 5.0.7 -m \"Fix bug with dark mode\""
     echo "         $0 5.0.7 --message \"Add new feature\" --dry-run"
+    exit 1
+fi
+
+if [ -z "$CHANGELOG_MESSAGE" ]; then
+    echo "Error: Changelog message is required"
+    echo "Usage: $0 <new_version> -m|--message \"changelog message\" [--dry-run]"
+    echo "Example: $0 5.0.7 -m \"Fix bug with dark mode\""
     exit 1
 fi
 
@@ -97,8 +100,7 @@ fi
 if [ "$DRY_RUN" = false ]; then
     echo "Updating CHANGELOG.md..."
     # Create a temporary file with the new entry
-    if [ -n "$CHANGELOG_MESSAGE" ]; then
-        cat > temp_changelog.md << EOF
+    cat > temp_changelog.md << EOF
 # Changelog
 
 ## v$NEW_VERSION
@@ -106,33 +108,16 @@ if [ "$DRY_RUN" = false ]; then
 - $CHANGELOG_MESSAGE
 
 EOF
-    else
-        cat > temp_changelog.md << EOF
-# Changelog
-
-## v$NEW_VERSION
-
-- 
-
-EOF
-    fi
     
     # Append the rest of the changelog (skip the first two lines)
     tail -n +3 CHANGELOG.md >> temp_changelog.md
     mv temp_changelog.md CHANGELOG.md
     
     echo "Added new version entry to CHANGELOG.md"
-    if [ -z "$CHANGELOG_MESSAGE" ]; then
-        echo "Please edit CHANGELOG.md to add your changes before committing"
-    fi
 else
     echo "Would update CHANGELOG.md:"
     echo "  Add new entry '## v$NEW_VERSION' at the top"
-    if [ -n "$CHANGELOG_MESSAGE" ]; then
-        echo "  Add changelog entry: '$CHANGELOG_MESSAGE'"
-    else
-        echo "  Add empty bullet point for changes"
-    fi
+    echo "  Add changelog entry: '$CHANGELOG_MESSAGE'"
 fi
 
 # Commit changes
@@ -157,19 +142,17 @@ fi
 
 if [ "$DRY_RUN" = false ]; then
     echo "Successfully updated to version $NEW_VERSION"
-    echo "Don't forget to:"
-    echo "1. Edit CHANGELOG.md to add your changes"
-    echo "2. Push the changes: git push origin main"
-    echo "3. Push the tag: git push origin $NEW_VERSION"
+    echo "Next steps:"
+    echo "1. Push the changes: git push origin main"
+    echo "2. Push the tag: git push origin $NEW_VERSION"
 else
     echo ""
     echo "DRY RUN COMPLETE"
     echo "================"
     echo "To actually perform these changes, run:"
-    echo "  $0 $NEW_VERSION"
+    echo "  $0 $NEW_VERSION -m \"$CHANGELOG_MESSAGE\""
     echo ""
     echo "After running, you would need to:"
-    echo "1. Edit CHANGELOG.md to add your changes"
-    echo "2. Push the changes: git push origin main"
-    echo "3. Push the tag: git push origin $NEW_VERSION"
+    echo "1. Push the changes: git push origin main"
+    echo "2. Push the tag: git push origin $NEW_VERSION"
 fi
