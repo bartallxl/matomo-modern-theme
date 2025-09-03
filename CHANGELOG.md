@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.0.7
+
+- New icons for Matomo 5.4.0
+
 ## v5.0.6
 
 - Improve design of sidebars in dark mode
