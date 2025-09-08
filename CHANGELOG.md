@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.0.8
+
+- Minor fixes and improvements
+
 ## v5.0.7
 
 - New icons for Matomo 5.4.0

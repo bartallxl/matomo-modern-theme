@@ -16,10 +16,23 @@ class Modern extends Plugin
     public function registerEvents()
     {
         return [
-            'Theme.configureThemeVariables' => 'configureThemeVariables',
             'AssetManager.addStylesheets' => 'addStylesheets',
+            'Template.getTemplateVars'      => 'addTemplateVars',
+            'Theme.configureThemeVariables' => 'configureThemeVariables',
             // 'AssetManager.filterMergedJavaScripts' => 'filterMergedJavaScripts',
         ];
+    }
+
+    public function addTemplateVars(array &$vars, string $template)
+    {
+        $settings = new \Piwik\Plugins\Modern\SystemSettings();
+        $darkMode = $settings->modernDarkMode->getValue();
+
+        if ($darkMode === 0 || $darkMode === 1) {
+            $vars['hasSVGLogo'] = 'darkmode'; // visible in all Twig templates
+        } else {
+            $vars['hasSVGLogo'] = false;
+        }
     }
 
     public function configureThemeVariables(Plugin\ThemeStyles $vars)
@@ -55,11 +68,6 @@ class Modern extends Plugin
         $vars->colorWidgetBorder = 'var(--theme-color-widget-border)';
         
         $systemSettings = new SystemSettings();
-        $darkMode = $systemSettings->modernDarkMode->getValue();
-        
-        if ($darkMode === 0 || $darkMode === 1) {
-            $vars->hasSVGLogo = "darkmode";
-        }
     }
 
     // public function filterMergedJavaScripts(&$mergedContent) {
