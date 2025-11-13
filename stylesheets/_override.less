@@ -76,7 +76,8 @@ textarea.materialize-textarea[readonly="readonly"] + label {
   background: none;
 }
 
-@media (prefers-color-scheme: dark) {
+body.modern-theme-auto.body--dark,
+body.modern-theme-dark {
   .visitorDetails .visitorLogIconWithDetails:last-child img {
     filter: invert(100%) hue-rotate(180deg);
   }
